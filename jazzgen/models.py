@@ -10,7 +10,7 @@ class ChordProgression(models.Model):
 
 class ChordGenerator:
     CHORDS = ['C', 'C#', 'D', 'D#', 'Db', 'E', 'Eb', 'F', 'F#', 'G', 'Gb', 'G#', 'A', 'Ab', 'A#', 'B', 'Bb']
-    QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11']
+    QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11', 'm6', 'm7', 'm9']
 
     def generate_progression(self, length=8):
         """Generate a random chord progression."""
