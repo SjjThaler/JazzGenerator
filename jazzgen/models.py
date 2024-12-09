@@ -7,8 +7,20 @@ class ChordProgression(models.Model):
 
     def __str__(self):
         return self.progression
+    
+class ChordRandom:
+    CHORDS = ['C', 'C#', 'D', 'D#', 'Db', 'E', 'Eb', 'F', 'F#', 'G', 'Gb', 'G#', 'A', 'Ab', 'A#', 'B', 'Bb']
+    QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11']
 
-class ChordGenerator:
+    def generate_progression(self, length=8):
+        """Generate a random chord progression."""
+        progression = [
+            f"{random.choice(self.CHORDS)}{random.choice(self.QUALITIES)}"
+            for _ in range(length)
+        ]
+        return progression
+
+class ChordCombiner:
     CHORDS = ['C', 'C#', 'D', 'D#', 'Db', 'E', 'Eb', 'F', 'F#', 'G', 'Gb', 'G#', 'A', 'Ab', 'A#', 'B', 'Bb']
     QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11']
     notes = [["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"],

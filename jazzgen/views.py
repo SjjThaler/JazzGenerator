@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from .models import ChordProgression, ChordGenerator
+from .models import ChordProgression, ChordRandom, ChordCombiner
 from urllib.parse import quote  # Import URL encoding function
 
 def random_chords(request):
-    generator = ChordGenerator()
+    generator = ChordRandom()
 
     # Check if user wants to save the progression (optional functionality)
     if request.method == "POST":
