@@ -23,7 +23,7 @@ class ChordGenerator:
     }
     scales_name = ["maj", "min"]
 
-    qcircle = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min"]
+    qcircle = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min", "F#maj", "D#min"]
 
 
     def generate_progression(self, length=8):
@@ -56,6 +56,7 @@ class ChordGenerator:
             root_index = notes_i.index(root)
         # bezieht das scale_pattern aus dem dict. muss nicht über den scale_name bestimmt werden. scale_name dient als basis
         scale_pattern = self.scales[scale_name]
+    
         # fügt jene noten aus den gewählten notes(sharp/flat) mit dem scale_pattern in eine liste
         for i in scale_pattern:
             index = root_index + i
@@ -63,4 +64,18 @@ class ChordGenerator:
                 scale.append(notes[index])
             else:
                 scale.append(notes[index-12])
+        # anpassung
+        if root == "F#" and scale_name == "maj":
+            scale[-1] = "E#"
+        if root == "D#" and scale_name == "min":
+            scale[1] = "E#"
+        if root == "Gb" and scale_name == "maj":
+            scale[3] = "Cb"
+        if root == "Gb" and scale_name == "min":
+            scale[2] = "Bbb"
+            scale[3] = "Cb"
+            scale[5] = "Ebb"
+            scale[6] = "Fb"
+        if root == "Eb" and scale_name == "min":
+            scale[5] = "Cb"
         return scale,scale_name,root
