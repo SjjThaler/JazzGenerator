@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Chord Progressions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .chord-container {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .chord-container img {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto;
+            filter: invert(100%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Random Chord Progressions</h1>
+    <p>Here is your chord progression:</p>
+
+    <div>
+        {% for chord in diagrams %}
+            <div class="chord-container">
+                <img src="{{ chord.diagram_url }}" alt="{{ chord.name }}">
+                <h3>{{ chord.name }}</h3>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Save This Progression</button>
+    </form>
+    <br>
+    <br>
+    <a href="{% url 'saved_progressions' %}">View Saved Progressions</a>
+</body>
+</html>
