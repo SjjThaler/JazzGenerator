@@ -93,3 +93,21 @@ class ChordCombiner:
         if root == "Eb" and scale_name == "min":
             scale[5] = "Cb"
         return scale,scale_name,root
+
+    def progression(self, scale, length):
+        scale_c = []
+        if scale[1] == "min":
+            for s, q in zip(scale[0], ["min", "dim", "maj", "min", "min", "maj", "maj"]):
+                scale_c.append(s+q)
+            start = random.choice([0, 3, 4])
+        if scale[1] == "maj":
+            for s, q in zip(scale[0], ["maj", "min", "min", "maj", "maj", "min", "dim"]):
+                scale_c.append(s+q)
+            start = random.choice([0, 1, 3, 4])
+
+        progression = [scale_c[start]]
+        for _ in range(length-2):
+            chord = random.choice(scale_c)
+            progression.append(chord)
+        progression.append(scale_c[0])
+        return progression, scale_c
