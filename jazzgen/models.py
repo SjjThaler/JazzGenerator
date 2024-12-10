@@ -43,7 +43,7 @@ class ChordCombiner:
         """Generate a random chord progression."""
         scale_result = self.scale()
         progression = [
-            f"{random.choice(scale_result[1])}{random.choice(self.QUALITIES)}"
+            f"{random.choice(scale_result[0])}{random.choice(self.QUALITIES)}"
             for _ in range(length)
         ]
         return progression
