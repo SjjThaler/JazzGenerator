@@ -22,6 +22,19 @@ def random_chords(request):
 
     return render(request, 'chords.html', {'progression': progression, 'diagrams': chords_with_diagrams})
 
+def chosen_chords(request):
+    generator = ChordCombiner()
+    progression = generator.generate_progression(length=8)
+    chords_with_diagrams = [
+        {
+                "name": chord,
+                "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
+            }
+            for chord in progression
+        ]
+    return render(request, 'jazz.html', {'progression': progression, 'diagrams': chords_with_diagrams})
+
+
 
 def display_progressions(request):
     # Fetch all progressions from the database

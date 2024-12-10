@@ -23,6 +23,7 @@ class ChordRandom:
 class ChordCombiner:
     CHORDS = ['C', 'C#', 'D', 'D#', 'Db', 'E', 'Eb', 'F', 'F#', 'G', 'Gb', 'G#', 'A', 'Ab', 'A#', 'B', 'Bb']
     QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11']
+
     notes = [["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"],
              ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"]
              ]
@@ -40,8 +41,9 @@ class ChordCombiner:
 
     def generate_progression(self, length=8):
         """Generate a random chord progression."""
+        scale_result = self.scale()
         progression = [
-            f"{random.choice(self.CHORDS)}{random.choice(self.QUALITIES)}"
+            f"{random.choice(scale_result[1])}{random.choice(self.QUALITIES)}"
             for _ in range(length)
         ]
         return progression

@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.random_chords, name='random_chords'),
     path('saved_progressions/', views.display_progressions, name='saved_progressions'),
+    path('jazz_progressions', views.chosen_chords, name='jazz_progressions')
 ]
 
 # Serve media files during development
