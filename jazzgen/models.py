@@ -41,11 +41,13 @@ class ChordCombiner:
 
     def generate_progression(self, length=8):
         """Generate a random chord progression."""
-        scale_result = self.scale()
-        progression = [
-            f"{random.choice(scale_result[0])}{random.choice(self.QUALITIES)}"
-            for _ in range(length)
-        ]
+        scale = self.scale()
+        scale2 = scale[0]
+        progression = self.progression(scale2, length=8)
+        #progression = [
+        #    f"{random.choice(scale_result[0])}{random.choice(self.QUALITIES)}"
+        #    for _ in range(length)
+        #]
         return progression
 
     def scale(self):

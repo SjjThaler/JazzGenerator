@@ -28,7 +28,7 @@ def chosen_chords(request):
     chords_with_diagrams = [
         {
                 "name": chord,
-                "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
+                "diagram_url": f"/media/chord_diagrams/{chord}.png"  # Encode chord names
             }
             for chord in progression
         ]
