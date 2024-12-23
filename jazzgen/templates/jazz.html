@@ -36,5 +36,14 @@
             </div>
         {% endfor %}
     </div>
+
+    <div>
+        {% for chord in substitute_diagrams %}
+            <div class="chord-container">
+                <img src="{{ chord.diagram_url }}" alt="{{ chord.name }}">
+                <h3>{{ chord.name }}</h3>
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>

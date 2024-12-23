@@ -6,19 +6,15 @@ def random_chords(request):
     generator = ChordRandom()
 
     # Check if user wants to save the progression (optional functionality)
-    if request.method == "POST":
-        progression = generator.generate_progression(length=4)
-        saved_progression = ChordProgression.objects.create(progression=", ".join(progression))
-        saved_progression.save()
-    else:
-        progression = generator.generate_progression(length=4)
-        chords_with_diagrams = [
-            {
-                "name": chord,
-                "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
-            }
-            for chord in progression
-        ]
+    
+    progression = generator.generate_progression(length=4)
+    chords_with_diagrams = [
+        {
+            "name": chord,
+            "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
+        }
+        for chord in progression
+    ]
 
     return render(request, 'chords.html', {'progression': progression, 'diagrams': chords_with_diagrams})
 
@@ -28,11 +24,20 @@ def chosen_chords(request):
     chords_with_diagrams = [
         {
                 "name": chord,
-                "diagram_url": f"/media/chord_diagrams/{chord}.png"  # Encode chord names
+                "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
             }
             for chord in progression
         ]
-    return render(request, 'jazz.html', {'progression': progression, 'diagrams': chords_with_diagrams})
+    
+    substitute = generator.generate_substitute_one(length=8)
+    subs_with_diagrams = [
+        {
+                "name": chord,
+                "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
+            }
+            for chord in substitute
+    ]
+    return render(request, 'jazz.html', {'progression': progression, 'diagrams': chords_with_diagrams, 'substitute': substitute, 'substitute_diagrams': subs_with_diagrams})
 
 
 
