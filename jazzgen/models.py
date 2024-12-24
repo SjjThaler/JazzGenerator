@@ -62,8 +62,8 @@ class ChordCombiner:
         '''
         Calculates the notes of a particular major or minor scale and returns
         the scale as a list of notes, the scale_kind (either major or minor) as a string. 
-        Also returns the full possible tone material outside of the scale modified
-        either by sharps or flats (for example: ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'])
+        Also returns the full chromatic scale either in sharps or in flats. 
+        For example: ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'])
         '''
 
         scale = []
@@ -73,17 +73,17 @@ class ChordCombiner:
         scale_kind = random.choice(self.scales_kind)
         # prüft welche scale (falt/sharp) passt, je nach root und tonart
         if root + scale_kind in self.circel_of_sharps:
-            tone_material = self.notes[0]
+            chromatic_scale = self.notes[0]
         else:
-            tone_material = self.notes[1]
+            chromatic_scale = self.notes[1]
         # wandelt chromatischeverwechslung um. z.B C#maj ist nicht im qcircle -> flat_scale ->
         # -> C# ist nicht in der flat_scale -> error ->
         try:
             # wählt den startpunkt
-            root_index = tone_material.index(root)
+            root_index = chromatic_scale.index(root)
         # -> nutzt den index aus der anderen scale(sharp)
         except:
-            notes_i = self.notes[self.notes.index(tone_material)-1]
+            notes_i = self.notes[self.notes.index(chromatic_scale)-1]
             root_index = notes_i.index(root)
         
         # bezieht das scale_pattern aus dem dict
@@ -93,9 +93,9 @@ class ChordCombiner:
         for i in scale_pattern:
             index = root_index + i
             if index <= 11:
-                scale.append(tone_material[index])
+                scale.append(chromatic_scale[index])
             else:
-                scale.append(tone_material[index-12])
+                scale.append(chromatic_scale[index-12])
         if root == "F#" and scale_kind == "maj":
             scale[-1] = "E#"
         if root == "D#" and scale_kind == "min":
@@ -109,7 +109,7 @@ class ChordCombiner:
             scale[6] = "Fb"
         if root == "Eb" and scale_kind == "min":
             scale[5] = "Cb"
-        return scale,scale_kind,tone_material
+        return scale,scale_kind,chromatic_scale
 
     
     def progression(self, scale_material, length):
@@ -118,16 +118,17 @@ class ChordCombiner:
         Returns the following:
         1. The chord progression as a list of chords with a defined starting chord, some random chords and the tonic as the end
         2. The scale_chords list which currently contains both the minor and major chords for the tones of the scale as sublists
+            => Example: [['Abmin', 'Bbdim', 'Cmaj', 'Dbmin', 'Ebmin', 'Fmaj', 'Gmaj'], ['Abmaj', 'Bbmin', 'Cmin', 'Dbmaj', 'Ebmaj', 'Fmin', 'Gdim']]
         3. The scale_kind_index as a number (0 = minor vs. 1 = major) which is both used in this method but also in substitute
             => could possibly be removed in the future to simplify the code
-        4. The tone material which was originally returned by the scale method (see scale method comment for explanation and example)
+        4. The chromatic scale which was originally returned by the scale method (see scale method comment for explanation and example)
         5. The cleaned progression as a list of chords which match the standard naming convetions for each chord
         '''
 
         # Extracting the different sublists from the scale_material
         scale_tones = scale_material[0]
         scale_kind = scale_material[1]
-        tone_material = scale_material[2]
+        chromatic_scale = scale_material[2]
         
         # Concatenating the scale_tones with both major and minor scale chords by first creating tuples with zip and then iterating through each tuple
         scale_chords = [[s+q for s, q in zip(scale_tones, ["min", "dim", "maj", "min", "min", "maj", "maj"])],
@@ -163,38 +164,88 @@ class ChordCombiner:
         cleaned_progression = self.filter(progression)
 
         # Return all of the material because the substitue method is dependant on it...
-        return progression, scale_chords, scale_kind_index, tone_material, cleaned_progression
+        return progression, scale_chords, scale_kind_index, chromatic_scale, cleaned_progression
 
 
-    def substitute(self, progression):
-        if "maj" in progression[1][progression[2]][0]:
-            su = [[0, 2, 5], [1, 3], [4, 6]]
-        else:
-            su = [[0, 2, 4], [5, 3], [1, 6]]
+    def substitute(self, progression_material):
+        '''
+        Substitutes chords within the chord progression from the progression method and returns a list containing a new chord progression.
+        This chord progression differs from the original chord progression by:
+        1. Diatonic / functional substitutions
+        2. Tritonus substitutions
+        3. Borrowed chords
+        '''
+        # Unpacking the material returned from the progression method, see progression method docstring for explanation
+        progression = progression_material[0]
+        scale_chords = progression_material[1]
+        scale_kind_index = progression_material[2]
+        chromatic_scale = progression_material[3]
+        cleaned_progression = progression_material[4] # not used in this method but needed in the generate_progression method
 
+        # Create the list which will be filled with the chord progression modified with substitutions
         sub_prog = []
-        prob = [0, 0, 0, 0, 1, 1, 2, 2, 2]
-        # 0=funktional, 1=tritonus, 2=borrow
-        for p_chords in progression[0]:
-            p = random.choice(prob)
-            if p == 0:
-                for subs in su:
-                    if progression[1][progression[2]].index(p_chords) in subs:
-                        sub_prog.append(progression[1][progression[2]][random.choice(subs)])
-            elif p == 1:
 
-                index = progression[3].index(p_chords[:-3])+6
-                if index <= 11:
-                    sub_prog.append(progression[3][index]+p_chords[-3::])
+        # Define the substitution_kind list which additionally weighs 
+        # the probability of each substitution (i.e. 0 is more probable than 1 and 2)
+        # 0 = diatonic / functional substitution
+        # 1 = tritonus substitution
+        # 2 = borrowed chords
+        
+        substitution_kind = [0, 0, 0, 0, 1, 1, 2, 2, 2]
+        
+        # For each chord in the progression choose a random substitution kind
+        for chords in progression:
+            substitution = random.choice(substitution_kind)
+            # ======================================
+            #       Functional substitution
+            # ======================================
+            # Firstly define functional groups for major and minor scales
+            if "maj" in scale_chords[scale_kind_index][0]:
+                functional_substitutions = [[0, 2, 5], # tonic group 
+                                        [1, 3], # subdominant group
+                                        [4, 6]] # dominant group
+            else:
+                functional_substitutions = [[0, 2, 4], # tonic group
+                                        [5, 3], # subdominant group
+                                        [1, 6]] # dominant group
+                # => needs revision! Not sure whether the functional groups in the minor keys are correct!
+            if substitution == 0:
+                for subs in functional_substitutions:
+                    if scale_chords[scale_kind_index].index(chords) in subs: # Check if the scale function of chord is any of [0, 2, 5], [1,3], or [4,6]
+                        sub_prog.append(scale_chords[scale_kind_index][random.choice(subs)]) # If yes, choose a random item within the tonic, subdominant or dominant sub-lists (could lead to choosing the original function leading to no substitution)
+            # ======================================
+            #       Tritonus substitution
+            # ======================================
+            elif substitution == 1:
+                # Remove 'maj' or 'min' and find index of the chord root in the chromatic scale
+                # Then add six semitones to calculate the index of the name of the chord root one tritonus away
+                tritonus_index = chromatic_scale.index(chords[:-3])+6
+
+                # Append the tritonus chord root determined above and re-concatenate 'maj' or 'min' onto it again
+                if tritonus_index <= 11:
+                    sub_prog.append(chromatic_scale[tritonus_index] + chords[-3::]) # Simply append the note that represents the tritonus_index within the chromatic scale
                 else:
-                    sub_prog.append(progression[3][index-12]+p_chords[-3::])
-            elif p == 2:
-                index = progression[1][progression[2]].index(p_chords)
-                sub_prog.append(progression[1][progression[2]-1][index])
+                    sub_prog.append(chromatic_scale[tritonus_index-12] + chords[-3::]) # Handle exceeding the index when going beyond the octave within the chromatic scale
+            # =======================================
+            # Borrowed chords
+            # =======================================
+            elif substitution == 2:
+                chord_index = scale_chords[scale_kind_index].index(chords) # Determine the current position of the chord within the scale's chords
+                sub_prog.append(scale_chords[scale_kind_index-1][chord_index]) # Change the scale kind to choose the corresponding chord within the parallel scale
+        
+        # Rename the chords in sub_prog with standard names for chords
         cleaned_substitute_progression = self.filter(sub_prog)
+        
+        # Finally return everything...
         return cleaned_substitute_progression
     
     def filter(self, progression):
+        '''
+        Clean the names of each of the chords to match standard chord naming convents.
+        Examples: 
+        Cmin7 is changed into Cm7
+        Gmaj is changed into G
+        '''
         cleaned_progression = []
         for chord in progression:
             if "maj" in chord:
