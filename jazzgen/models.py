@@ -162,7 +162,7 @@ class ChordCombiner:
         # Gmaj is changed into G
         cleaned_progression = self.filter(progression)
 
-        # Return all of the material because the substitue method is dependend on it...
+        # Return all of the material because the substitue method is dependant on it...
         return progression, scale_chords, scale_kind_index, tone_material, cleaned_progression
 
 
@@ -174,7 +174,7 @@ class ChordCombiner:
 
         sub_prog = []
         prob = [0, 0, 0, 0, 1, 1, 2, 2, 2]
-        # 0=funktional, 1=tritonus, 2=borow
+        # 0=funktional, 1=tritonus, 2=borrow
         for p_chords in progression[0]:
             p = random.choice(prob)
             if p == 0:
