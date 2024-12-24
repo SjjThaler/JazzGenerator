@@ -42,6 +42,9 @@ def chosen_chords(request):
 
 
 
+#######################################
+#             OBSOLETE                #
+#######################################
 def display_progressions(request):
     # Fetch all progressions from the database
     progressions = ChordProgression.objects.all()
