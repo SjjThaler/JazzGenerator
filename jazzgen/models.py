@@ -38,25 +38,19 @@ class ChordCombiner:
 
     circel_of_sharps = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min", "F#maj", "D#min"]
 
-    substitute_progression = []
-
     def generate_progression(self, length=8):
-        """Generate a random chord progression."""
+        """Generate a diatonic and a complex jazz chord progression and return them as a two sublists within a list."""
         #print(generate.generate_progression_random())
         skala = self.scale()
-        progression = self.progression(skala, 8)
+        diatonic_progression = self.progression(skala, 8)
 
-        p = self.substitute(progression)
-        new_p = []
-        for i in p:
-            new_p.append(i + random.choice(["", "6", "7", "9", "11"]))
-        self.substitute_progression = new_p
+        simple_jazz_progression = self.substitute(diatonic_progression)
+        complex_jazz_progression = []
+        for i in simple_jazz_progression:
+            complex_jazz_progression.append(i + random.choice(["", "6", "7", "9", "11"]))
 
-        return progression[4]
+        return diatonic_progression[4], complex_jazz_progression
     
-    def generate_substitute_one(self, length=8):
-        return self.substitute_progression
-
     
     def scale(self):
         '''

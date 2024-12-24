@@ -21,23 +21,24 @@ def random_chords(request):
 def chosen_chords(request):
     generator = ChordCombiner()
     progression = generator.generate_progression(length=8)
+
+    # Add chord diagrams to the diatonic progression (= index 0)
     chords_with_diagrams = [
         {
                 "name": chord,
                 "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
             }
-            for chord in progression
+            for chord in progression[0]
         ]
-    
-    substitute = generator.generate_substitute_one(length=8)
+    # Add chord diagrams to the jazz progression (= index 1)
     subs_with_diagrams = [
         {
                 "name": chord,
                 "diagram_url": f"/media/chord_diagrams/{quote(chord)}.png"  # Encode chord names
             }
-            for chord in substitute
+            for chord in progression[1]
     ]
-    return render(request, 'jazz.html', {'progression': progression, 'diagrams': chords_with_diagrams, 'substitute': substitute, 'substitute_diagrams': subs_with_diagrams})
+    return render(request, 'jazz.html', {'diagrams': chords_with_diagrams, 'substitute_diagrams': subs_with_diagrams})
 
 
 
