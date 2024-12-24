@@ -1,4 +1,5 @@
 import random
+import pdb
 class ChordGenerator:
     CHORDS = ['C', 'C#', 'D', 'D#', 'Db', 'E', 'Eb', 'F', 'F#', 'G', 'Gb', 'G#', 'A', 'Ab', 'A#', 'B', 'Bb']
     QUALITIES = ['maj', 'min', 'dim', 'aug', '7', '6', '9', '11']
@@ -70,6 +71,7 @@ class ChordGenerator:
         return scale,scale_name,notes
 
     def progression(self, scale, length):
+        pdb.set_trace()
         scale_c = [[s+q for s, q in zip(scale[0], ["min", "dim", "maj", "min", "min", "maj", "maj"])],
                     [s+q for s, q in zip(scale[0], ["maj", "min", "min", "maj", "maj", "min", "dim"])]
         ]
