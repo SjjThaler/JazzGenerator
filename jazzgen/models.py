@@ -1,5 +1,6 @@
 from django.db import models
 import random
+import pdb
 
 class ChordProgression(models.Model):
     progression = models.TextField()  # Stores the progression as a comma-separated string
@@ -60,8 +61,9 @@ class ChordCombiner:
     def scale(self):
         '''
         Calculates the notes of a particular major or minor scale and returns
-        the scale as a list of notes, the scale_kind (either major or minor) as a string
-        and the tone material of the scale.
+        the scale as a list of notes, the scale_kind (either major or minor) as a string. 
+        Also returns the full possible tone material outside of the scale modified
+        either by sharps or flats (for example: ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'])
         '''
 
         scale = []
@@ -110,27 +112,58 @@ class ChordCombiner:
         return scale,scale_kind,tone_material
 
     
-    def progression(self, scale, length):
+    def progression(self, scale_material, length):
         '''
-        Calculates a random chord progression given a particular scale by (work in progress, lol)
+        Calculates a random chord progression given a particular scale.
+        Returns the following:
+        1. The chord progression as a list of chords with a defined starting chord, some random chords and the tonic as the end
+        2. The scale_chords list which currently contains both the minor and major chords for the tones of the scale as sublists
+        3. The scale_kind_index as a number (0 = minor vs. 1 = major) which is both used in this method but also in substitute
+            => could possibly be removed in the future to simplify the code
+        4. The tone material which was originally returned by the scale method (see scale method comment for explanation and example)
+        5. The cleaned progression as a list of chords which match the standard naming convetions for each chord
         '''
-        scale_c = [[s+q for s, q in zip(scale[0], ["min", "dim", "maj", "min", "min", "maj", "maj"])],
-                    [s+q for s, q in zip(scale[0], ["maj", "min", "min", "maj", "maj", "min", "dim"])]
+
+        # Extracting the different sublists from the scale_material
+        scale_tones = scale_material[0]
+        scale_kind = scale_material[1]
+        tone_material = scale_material[2]
+        
+        # Concatenating the scale_tones with both major and minor scale chords by first creating tuples with zip and then iterating through each tuple
+        scale_chords = [[s+q for s, q in zip(scale_tones, ["min", "dim", "maj", "min", "min", "maj", "maj"])],
+                    [s+q for s, q in zip(scale_tones, ["maj", "min", "min", "maj", "maj", "min", "dim"])]
         ]
-        if scale[1] == "min":
-            scale_c_i = 0
+
+        # Choosing the correct chords depending on whether scale kind is major or minor. Also chooses a common
+        # start for the chord progression. Common starting chords are here defined as 
+        # either the tonic, the supertonic, the subdominant or the dominant function of the scale
+        if scale_kind == "min":
+            scale_kind_index = 0
             start = random.choice([0, 3, 4])
-        if scale[1] == "maj":
-            scale_c_i = 1
+        if scale_kind == "maj":
+            scale_kind_index = 1
             start = random.choice([0, 1, 3, 4])
 
-        progression = [scale_c[scale_c_i][start]]
+        # Create the progression list and immediately add the starting chord as defined above.
+        progression = [scale_chords[scale_kind_index][start]]
+
+        # Add length-2 chords from either the minor or major chord. Why length -2? Because the start and end
+        # of the chord progression are not supposed to be random chords.
         for _ in range(length-2):
-            chord = random.choice(scale_c[scale_c_i])
+            chord = random.choice(scale_chords[scale_kind_index])
             progression.append(chord)
-        progression.append(scale_c[scale_c_i][0])
+        
+        # Add the tonic chord to the end of the chord progression
+        progression.append(scale_chords[scale_kind_index][0])
+
+        # Clean the names of each of the chords to match standard chord naming convents.
+        # Examples: 
+        # Cmin7 is changed into Cm7
+        # Gmaj is changed into G
         cleaned_progression = self.filter(progression)
-        return progression, scale_c, scale_c_i, scale[2], cleaned_progression
+
+        # Return all of the material because the substitue method is dependend on it...
+        return progression, scale_chords, scale_kind_index, tone_material, cleaned_progression
 
 
     def substitute(self, progression):
