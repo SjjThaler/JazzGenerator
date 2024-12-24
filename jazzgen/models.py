@@ -33,9 +33,9 @@ class ChordCombiner:
         "min":[0,2,3,5,7,8,10]
 
     }
-    scales_name = ["maj", "min"]
+    scales_kind = ["maj", "min"]
 
-    qcircel = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min", "F#maj", "D#min"]
+    circel_of_sharps = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min", "F#maj", "D#min"]
 
     substitute_progression = []
 
@@ -56,52 +56,64 @@ class ChordCombiner:
     def generate_substitute_one(self, length=8):
         return self.substitute_progression
 
+    
     def scale(self):
+        '''
+        Calculates the notes of a particular major or minor scale and returns
+        the scale as a list of notes, the scale_kind (either major or minor) as a string
+        and the tone material of the scale.
+        '''
+
         scale = []
         # wählt random eine root_note aus der sharp oder flat scale
         root = random.choice(random.choice(self.notes))
         # wählt random eine scale (minor/major)
-        scale_name = random.choice(self.scales_name)
+        scale_kind = random.choice(self.scales_kind)
         # prüft welche scale (falt/sharp) passt, je nach root und tonart
-        if root+scale_name in self.qcircel:
-            notes = self.notes[0]
+        if root + scale_kind in self.circel_of_sharps:
+            tone_material = self.notes[0]
         else:
-            notes = self.notes[1]
+            tone_material = self.notes[1]
         # wandelt chromatischeverwechslung um. z.B C#maj ist nicht im qcircle -> flat_scale ->
         # -> C# ist nicht in der flat_scale -> error ->
         try:
             # wählt den startpunkt
-            root_index = notes.index(root)
+            root_index = tone_material.index(root)
         # -> nutzt den index aus der anderen scale(sharp)
         except:
-            notes_i = self.notes[self.notes.index(notes)-1]
+            notes_i = self.notes[self.notes.index(tone_material)-1]
             root_index = notes_i.index(root)
+        
         # bezieht das scale_pattern aus dem dict
-        scale_pattern = self.scales[scale_name]
+        scale_pattern = self.scales[scale_kind]
 
         # fügt jene noten aus den gewählten notes(sharp/flat) mit dem scale_pattern in eine liste
         for i in scale_pattern:
             index = root_index + i
             if index <= 11:
-                scale.append(notes[index])
+                scale.append(tone_material[index])
             else:
-                scale.append(notes[index-12])
-        if root == "F#" and scale_name == "maj":
+                scale.append(tone_material[index-12])
+        if root == "F#" and scale_kind == "maj":
             scale[-1] = "E#"
-        if root == "D#" and scale_name == "min":
+        if root == "D#" and scale_kind == "min":
             scale[1] = "E#"
-        if root == "Gb" and scale_name == "maj":
+        if root == "Gb" and scale_kind == "maj":
             scale[3] = "Cb"
-        if root == "Gb" and scale_name == "min":
+        if root == "Gb" and scale_kind == "min":
             scale[2] = "Bbb"
             scale[3] = "Cb"
             scale[5] = "Ebb"
             scale[6] = "Fb"
-        if root == "Eb" and scale_name == "min":
+        if root == "Eb" and scale_kind == "min":
             scale[5] = "Cb"
-        return scale,scale_name,notes
+        return scale,scale_kind,tone_material
 
+    
     def progression(self, scale, length):
+        '''
+        Calculates a random chord progression given a particular scale by (work in progress, lol)
+        '''
         scale_c = [[s+q for s, q in zip(scale[0], ["min", "dim", "maj", "min", "min", "maj", "maj"])],
                     [s+q for s, q in zip(scale[0], ["maj", "min", "min", "maj", "maj", "min", "dim"])]
         ]
