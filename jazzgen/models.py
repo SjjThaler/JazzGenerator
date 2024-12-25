@@ -40,7 +40,6 @@ class ChordCombiner:
 
     def generate_progression(self, length=8):
         """Generate a diatonic and a complex jazz chord progression and return them as a two sublists within a list."""
-        #print(generate.generate_progression_random())
         skala = self.scale()
         diatonic_progression = self.progression(skala, 8)
 
@@ -61,10 +60,22 @@ class ChordCombiner:
         '''
 
         scale = []
-        # wählt random eine root_note aus der sharp oder flat scale
-        root = random.choice(random.choice(self.notes))
+        # wählt random eine root_note aus der sharp oder flat scale und verhindert Gb als root, weil es zu stressig ist
+        for choice in range(20):
+            root = random.choice(random.choice(self.notes))
+            if root != "Gb":
+                break
+        
         # wählt random eine scale (minor/major)
         scale_kind = random.choice(self.scales_kind)
+
+        # verhindert F#dur und D#moll, weil es zu stressig ist
+        if scale_kind == "maj" and root == "F#":
+            scale_kind = "min"
+        if scale_kind == "min" and root == "D#":
+            scale_kind = "maj"
+        if scale_kind == "min" and root == "Eb":
+            scale_kind = "maj"
         # prüft welche scale (falt/sharp) passt, je nach root und tonart
         if root + scale_kind in self.circel_of_sharps:
             chromatic_scale = self.notes[0]
@@ -90,19 +101,7 @@ class ChordCombiner:
                 scale.append(chromatic_scale[index])
             else:
                 scale.append(chromatic_scale[index-12])
-        if root == "F#" and scale_kind == "maj":
-            scale[-1] = "E#"
-        if root == "D#" and scale_kind == "min":
-            scale[1] = "E#"
-        if root == "Gb" and scale_kind == "maj":
-            scale[3] = "Cb"
-        if root == "Gb" and scale_kind == "min":
-            scale[2] = "Bbb"
-            scale[3] = "Cb"
-            scale[5] = "Ebb"
-            scale[6] = "Fb"
-        if root == "Eb" and scale_kind == "min":
-            scale[5] = "Cb"
+        
         return scale,scale_kind,chromatic_scale
 
     
@@ -185,7 +184,7 @@ class ChordCombiner:
         # 1 = tritonus substitution
         # 2 = borrowed chords
         
-        substitution_kind = [0, 0, 0, 0, 1, 1, 2, 2, 2]
+        substitution_kind = [3, 3,3, 3, 3]
         
         # For each chord in the progression choose a random substitution kind
         for chords in progression:
@@ -213,11 +212,9 @@ class ChordCombiner:
             elif substitution == 1:
                 # Remove 'maj' or 'min' and find index of the chord root in the chromatic scale
                 # Then add six semitones to calculate the index of the name of the chord root one tritonus away
-                try:
-                    tritonus_index = chromatic_scale.index(chords[:-3])+6
-                
-                except ValueError: # Some values are not in the chromatic_scale (Ebb, Bbb, E# etc.)
-                    continue
+                tritonus_index = chromatic_scale.index(chords[:-3])+6
+
+                    
 
                 # Append the tritonus chord root determined above and re-concatenate 'maj' or 'min' onto it again
                 if tritonus_index <= 11:
@@ -227,12 +224,29 @@ class ChordCombiner:
             # =======================================
             # Borrowed chords
             # =======================================
-            elif substitution == 2:
+            if substitution == 2:
                 chord_index = scale_chords[scale_kind_index].index(chords) # Determine the current position of the chord within the scale's chords
                 sub_prog.append(scale_chords[scale_kind_index-1][chord_index]) # Change the scale kind to choose the corresponding chord within the parallel scale
+
+            # =======================================
+            # D7 chords
+            # =======================================
+            if substitution == 3:
+                x = True
+                d7_index = chromatic_scale.index(chords[:-3])+5
+                sub_prog.append(chords + "7")
+                if d7_index <= 11:
+                    sub_prog.append(chromatic_scale[d7_index])
+                else:
+                    sub_prog.append(chromatic_scale[d7_index-12])
+                
+                
+            
         
         # Rename the chords in sub_prog with standard names for chords
         cleaned_substitute_progression = self.filter(sub_prog)
+
+
         
         # Finally return everything...
         return cleaned_substitute_progression

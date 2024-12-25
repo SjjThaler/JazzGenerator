@@ -71,7 +71,6 @@ class ChordGenerator:
         return scale,scale_name,notes
 
     def progression(self, scale, length):
-        pdb.set_trace()
         scale_c = [[s+q for s, q in zip(scale[0], ["min", "dim", "maj", "min", "min", "maj", "maj"])],
                     [s+q for s, q in zip(scale[0], ["maj", "min", "min", "maj", "maj", "min", "dim"])]
         ]
