@@ -213,7 +213,11 @@ class ChordCombiner:
             elif substitution == 1:
                 # Remove 'maj' or 'min' and find index of the chord root in the chromatic scale
                 # Then add six semitones to calculate the index of the name of the chord root one tritonus away
-                tritonus_index = chromatic_scale.index(chords[:-3])+6
+                try:
+                    tritonus_index = chromatic_scale.index(chords[:-3])+6
+                
+                except ValueError: # Some values are not in the chromatic_scale (Ebb, Bbb, E# etc.)
+                    continue
 
                 # Append the tritonus chord root determined above and re-concatenate 'maj' or 'min' onto it again
                 if tritonus_index <= 11:
