@@ -50,7 +50,14 @@ class theM:
 
         return scale_with_pattern
 
-    def intervall(self, tone, n):
+    def intervall(self, tone, interv):
+        inter = {"1":0, "b2":1, "2":2, "#2":3, "b3":3, "3":4, "#3":5, "4":5, "A4":6, "#4":6, "b5":6, "5":7, "#5":8, "b6":8, "6":9, "#6":10, "b7":10, "7":11, "#7":0}
+        ind = [["1"], ["b2", "2", "#2"], ["b3", "3", "#3"], ["4", "A4", "#4"], ["b5", "5", "#5"], ["b6", "6", "#6"], ["b7", "7", "#7"]]
+        for i, sublist in enumerate(ind):
+            if interv in sublist:
+                stop = i
+                break
+        n = inter[interv]
         add = 0
         n_tone = tone
         if "#" in tone:
@@ -69,35 +76,28 @@ class theM:
                 v+=12
             tones_pattern.append([note, v+add])
         s = tones_pattern[0][1]-add
-        intervall = []
+
         if n > 11:
             n-= 12
-        for note, s_pattern in zip(tones_pattern, self.scales["maj"]):
-            if note[1] - s == n:
-                intervall.append(note[0])
-            if note[1] - s == n-1:
-                intervall.append(note[0] + "#")
-            #if note[1] - s == n-2:
-            #    intervall.append(note[0] + "##")
-            if note[1] - s == n+1:
-                intervall.append(note[0] + "b")
-            #if note[1] - s == n+2:
-            #    intervall.append(note[0] + "bb")
 
-        sort_intervall = [i for i in intervall if len(i) == 1]
-        for i, c in zip(["#", "b"], intervall):
-            if i in c:
-                sort_intervall.append(c)
+        note = tones_pattern[stop]
+        if note[1] - s == n:
+            intervall = note[0]
+        if note[1] - s == n-1:
+            intervall = note[0] + "#"
+        #if note[1] - s == n-2:
+        #    intervall = note[0] + "##"
+        if note[1] - s == n+1:
+            intervall = note[0] + "b"
+        #if note[1] - s == n+2:
+        #    intervall = note[0] + "bb"
 
-        if len(tone) == 1 or "#" in tone:
-            return sort_intervall[0]
-        elif "b" in tone:
-            return sort_intervall[-1]
+        return intervall
 
 
 x = theM()
-print(x.scale("D", "harm"))
-print(x.intervall("B", 6))
+print(x.scale("C", "maj"))
+print(x.intervall("C", "b5"))
 
 
 
