@@ -13,8 +13,7 @@ class theM:
         "harm":[0,2,3,5,7,8,11]
 
     }
-    # r_p_scale = root, pattern scale
-    def scale(self, root, skala):
+    def scale_mode(self, root):
         r_p_scale = []
         add = 0
         if "#" in root:
@@ -24,13 +23,18 @@ class theM:
             add = root.count("b")
             root = root[0]
         root_index = self.notes.index(root)
-        scale_to_root = self.notes_pattern[root_index::]+self.notes_pattern[:root_index]
+        scale_to_root = self.notes_pattern[root_index::] + self.notes_pattern[:root_index]
         tone_subtraction = scale_to_root[0][1]
         for note, v in scale_to_root:
             v -= tone_subtraction
             if v < 0:
-                v+=12
-            r_p_scale.append([note, v+add])
+                v += 12
+            r_p_scale.append([note, v + add])
+        return r_p_scale
+
+    # r_p_scale = root, pattern scale
+    def scale(self, root, skala):
+        r_p_scale = self.scale_mode(root)
         scale_with_pattern = []
 
         for note, s_pattern in zip(r_p_scale, self.scales[skala]):
@@ -50,7 +54,7 @@ class theM:
 
         return scale_with_pattern
 
-    def intervall(self, tone, interv):
+    def intervall_gen(self, tone, interv):
         inter = {"1":0, "b2":1, "2":2, "#2":3, "b3":3, "3":4, "#3":5, "4":5, "A4":6, "#4":6, "b5":6, "5":7, "#5":8, "b6":8, "6":9, "#6":10, "b7":10, "7":11, "#7":0}
         ind = [["1"], ["b2", "2", "#2"], ["b3", "3", "#3"], ["4", "A4", "#4"], ["b5", "5", "#5"], ["b6", "6", "#6"], ["b7", "7", "#7"]]
         for i, sublist in enumerate(ind):
@@ -94,12 +98,60 @@ class theM:
 
         return intervall
 
+    def intervall_ident(self, root, tone):
+
+        r_p_scale = self.scale_mode(root[0])
+
+        add = 0
+        if "#" in root:
+            add = -root.count("#")
+            root = root[0]
+        if "b" in root:
+            add = root.count("b")
+            root = tone[0]
+        if "#" in tone:
+            add += tone.count("#")
+            tone = tone[0]
+        if "b" in tone:
+            add += -tone.count("b")
+            tone = tone[0]
+
+        for i, sublist in enumerate(r_p_scale):
+            if tone in sublist:
+                tone_ = r_p_scale[i]
+                stufe = i + 1
+                break
+
+        seminotes = tone_[1] + add
+        delta = self.scale_mode("C")[stufe-1][1]-seminotes
+
+        if delta == 0:
+            intervall = f"{stufe}"
+        if delta == 1:
+            intervall = f"b{stufe}"
+        if delta == 2:
+            intervall = f"bb{stufe}"
+        if delta == -1:
+            intervall = f"#{stufe}"
+        if delta == -2:
+            intervall = f"##{stufe}"
+
+        return intervall
+
+
+
+
+
+    def chord_scale(self, root, skala):
+        scale_with_root_pattern = self.scale(root, skala)
+        chord_scale = []
+
+        return chord_scale
+
 
 x = theM()
-print(x.scale("C", "maj"))
-print(x.intervall("C", "b5"))
-
-
-
-
+print(x.scale("F#", "maj"))
+print(x.intervall_gen("C", "b5"))
+print(x.intervall_ident("B#", "F##"))
+print(x.scale_mode("D"))
 
