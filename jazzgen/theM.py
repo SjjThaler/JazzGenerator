@@ -1,8 +1,7 @@
 import random
 
 class theM:
-    #circel = ["Cmaj", "Amin", "Gmaj", "Emin", "Dmaj", "Bmin", "Amaj", "F#min", "Emaj", "C#min", "Bmaj", "G#min",
-    #          "F#maj", "D#min"]
+
     notes_pattern = [["A", 0], ["B", 2], ["C", 3], ["D", 5], ["E", 7], ["F", 8], ["G", 10]]
     notes = ["A", "B", "C", "D", "E", "F", "G"]
 
@@ -49,9 +48,6 @@ class theM:
             if note[1] - s_pattern == 2:
                 scale_with_pattern.append([note[0]+"bb", s_pattern])
 
-
-
-
         return scale_with_pattern
 
     def intervall_gen(self, tone, interv):
@@ -89,12 +85,12 @@ class theM:
             intervall = note[0]
         if note[1] - s == n-1:
             intervall = note[0] + "#"
-        #if note[1] - s == n-2:
-        #    intervall = note[0] + "##"
+        if note[1] - s == n-2:
+            intervall = note[0] + "##"
         if note[1] - s == n+1:
             intervall = note[0] + "b"
-        #if note[1] - s == n+2:
-        #    intervall = note[0] + "bb"
+        if note[1] - s == n+2:
+            intervall = note[0] + "bb"
 
         return intervall
 
@@ -142,16 +138,56 @@ class theM:
 
 
 
-    def chord_scale(self, root, skala):
+    def chord_scale_intervall(self, root, skala):
         scale_with_root_pattern = self.scale(root, skala)
         chord_scale = []
+        for i, note in enumerate(scale_with_root_pattern):
+            #add = [scale_with_root_pattern[i][1]]
+            intervall = []
+            for _ in range(3):
+                i += 2
+                if i == 7:
+                    i = 0
+                if i > 6:
+                    i = -6
+                #add.append(scale_with_root_pattern[i][1])
+                intervall.append(self.intervall_ident(note[0], scale_with_root_pattern[i][0]))
 
+            chord_scale.append([note[0], intervall]) # optional semitones add,
+        return chord_scale
+
+    def chord_scale_notes(self, root, skala):
+        chord_scale = self.chord_scale_intervall(root, skala)
+        chord_scale_notes = []
+        for r_note, chord_pattern in chord_scale:
+           add = [r_note]
+           for i in chord_pattern:
+               add.append(self.intervall_gen(r_note, i))
+           chord_scale_notes.append(add)
+        return chord_scale_notes
+
+    def chord_scale(self, root, skala):
+        chord_scale_intervall = self.chord_scale_intervall(root, skala)
+        chord_scale = []
+        for r_note, interv in chord_scale_intervall:
+            if "b3" in interv:
+                r_note+= "m"
+            if "b5" in interv:
+                r_note+="dim"
+            if "b7" in interv:
+                r_note+="7"
+            if "7" in interv:
+                r_note+="M7"
+            chord_scale.append(r_note)
         return chord_scale
 
 
-x = theM()
-print(x.scale("F#", "maj"))
-print(x.intervall_gen("C", "b5"))
-print(x.intervall_ident("B#", "F##"))
-print(x.scale_mode("D"))
 
+x = theM()
+print(x.scale("C", "maj"))
+print(x.intervall_gen("C#", "b5"))
+print(x.intervall_ident("B", "G"))
+print(x.scale_mode("C"))
+print(x.chord_scale_intervall("E", "harm"))
+#print(x.chord_scale_notes("E", "maj"))
+print(x.chord_scale("A", "harm"))
