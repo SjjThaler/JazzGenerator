@@ -177,6 +177,7 @@ class ChordCombiner:
 
         # Create the list which will be filled with the chord progression modified with substitutions
         sub_prog = []
+        
 
         # Define the substitution_kind list which additionally weighs 
         # the probability of each substitution (i.e. 0 is more probable than 1 and 2)
@@ -187,7 +188,7 @@ class ChordCombiner:
         substitution_kind = [3, 3,3, 3, 3]
         
         # For each chord in the progression choose a random substitution kind
-        for chords in progression:
+        for i, chords in enumerate(progression):
             substitution = random.choice(substitution_kind)
             # ======================================
             #       Functional substitution
@@ -232,19 +233,18 @@ class ChordCombiner:
             # D7 chords
             # =======================================
             if substitution == 3:
-                x = True
-                d7_index = chromatic_scale.index(chords[:-3])+5
-                sub_prog.append(chords + "7")
+                d7_index = chromatic_scale.index(progression[i][:-3])+5
+                #sub_prog.append(chords + "7")
                 if d7_index <= 11:
-                    sub_prog.append(chromatic_scale[d7_index])
+                    progression[i+1] = chromatic_scale[d7_index]
                 else:
-                    sub_prog.append(chromatic_scale[d7_index-12])
+                    progression[i+1] = chromatic_scale[d7_index-12]
                 
-                
+
             
         
         # Rename the chords in sub_prog with standard names for chords
-        cleaned_substitute_progression = self.filter(sub_prog)
+        cleaned_substitute_progression = self.filter(progression)
 
 
         
