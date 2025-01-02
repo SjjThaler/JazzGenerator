@@ -309,6 +309,8 @@ class theM:
         chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index][0], "5"), ["3", "5", "b7"]])
         return chord_scale_intervall
     def add_251(self, chord_scale_intervall, index):
+        if index < 0:
+            index = len(chord_scale_intervall) + index
         chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index][0], "5"), ["3", "5", "b7"]])
         chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index+1][0], "2"), ["b3", "5", "b7"]])
         return chord_scale_intervall
@@ -356,7 +358,13 @@ class theM:
         except:
             interv = maj_dic[stufe]
             return [self.intervall_gen(root, interv), ["3", "5"]]
-            
+
+    def rand_prog(self, root, length):
+        choice = ["i", "I", "bii", "bII", "ii", "II", "biii", "bIII", "iii", "III", "iv", "IV", "bv", "bV", "v", "V", "bvi", "bVI", "vi", "VI", "bvii", "bVII", "vii", "VII"]
+        result = []
+        for _ in range(length):
+            result.append(self.stufen_gen(root, random.choice(choice)))
+        return result
 
 
 
@@ -365,18 +373,18 @@ class theM:
 
 
 x = theM()
-print(x.scale("C", "maj"))
-print(x.intervall_gen("C#", "b5"))
-print(x.intervall_ident("B", "G"))
-print(x.scale_root_patter("C"))
-chord_scale_intervall = x.chord_scale_intervall("C", "maj")
-print(chord_scale_intervall)
+#print(x.scale("C", "maj"))
+#print(x.intervall_gen("C#", "b5"))
+#print(x.intervall_ident("B", "G"))
+#print(x.scale_root_patter("C"))
+chord_scale_intervall = x.chord_scale_intervall("Cb", "maj")
+#print(chord_scale_intervall)
 #print(x.chord_scale_notes("E", "maj"))
 
 #print(x.scale_mode("C", "lok"))
 x.add_chord_quality(chord_scale_intervall, 7, 7)
 x.add_chord_quality(chord_scale_intervall, 1, 7)
-print(x.add_chord_quality(chord_scale_intervall, 2, 9))
+x.add_chord_quality(chord_scale_intervall, 2, 9)
 
 chord_scale = x.chord_scale(chord_scale_intervall)
 print(chord_scale)
@@ -384,8 +392,8 @@ test = x.add_2nd_d(chord_scale_intervall, 1)
 print(test)
 print(x.add_2nd_d(test, 1))
 print(x.chord_scale(test))
-print(x.find_index(test, "F"))
-f = x.functional("C", 2)
+#print(x.find_index(test, "F"))
+f = x.functional("Cb", 2)
 
 f = x.add_2nd_d(f, -1)
 x.tritone_sub(f, -2)
@@ -395,4 +403,12 @@ x.add_251(f, 1)
 print(x.stufen_ident(f, f[0][0]))
 
 print(x.chord_scale(f))
-print(x.stufen_gen("C", "iv"))
+print(x.chord_scale([x.stufen_gen("C", "iv")]))
+root = "G"
+rand = x.rand_prog(root, 5)
+rand.insert(0, x.stufen_gen(root, random.choice(["i", "I"])))
+rand.append(x.stufen_gen(root, random.choice(["i", "I"])))
+x.add_251(rand, -1)
+x.add_2nd_d(rand, -3)
+print(x.stufen_ident(rand, root))
+print(x.chord_scale(rand))
