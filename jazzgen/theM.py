@@ -493,6 +493,7 @@ class theM:
             if "b" + i in stufe:
                 stufe = stufe.split("b" + i)
                 stufe = "".join(stufe)
+                add.append(i)
 
             elif i in stufe:
                 stufe = stufe.split(i)
