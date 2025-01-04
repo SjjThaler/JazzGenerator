@@ -299,8 +299,9 @@ class theM:
             chord_scale.append(add)
         return chord_scale
 
-    def add_chord_quality(self, chord_scale_intervall, stufe, quality):
+    def add_chord_quality_diatonic(self, chord_scale_intervall, stufe, quality):
         """
+        funktioniert nur wenn die chord_scale_intervall liste nach einer skala geordnet ist
         Adds an interval to a chord in the scale.
 
         Args:
@@ -351,6 +352,9 @@ class theM:
 
         new_chord_scale[stufe - 1][1].append(intervall)
         return new_chord_scale
+
+    def add_chord_quality(self, chord_scale_intervall, index, quality):
+        return chord_scale_intervall[index][1].append(quality)
 
     def add_2nd_d(self, chord_scale_intervall, index):
         """
@@ -449,11 +453,25 @@ class theM:
         result = []
         min_dic = {"1": "i", "b2": "bii", "2": "ii", "b3": "biii", "3": "iii", "b4": "iii", "4": "iv", "#4": "#iv", "b5": "bv", "5": "v", "b6": "bvi", "6": "vi", "bb7": "vi", "b7": "bvii", "7": "vii", "b1": "vii"}
         maj_dic = {"1": "I", "b2": "bII", "2": "II", "b3": "bIII", "3": "III", "b4": "III", "4": "IV", "#4": "#IV", "b5": "bV", "5": "V", "b6": "bVI", "6": "VI", "bb7": "VI", "b7": "bVII", "7": "VII", "b1": "VII"}
-        for chord, interv in chord_scale_intervall:
-            if "3" in interv:
-                result.append(maj_dic[self.intervall_ident(root, chord)])
-            if "b3" in interv:
-                result.append(min_dic[self.intervall_ident(root, chord)])
+        for i, chord in enumerate(chord_scale_intervall):
+
+            if "3" in chord[1]:
+                if i <= len(chord_scale_intervall) - 2:
+                    if self.intervall_ident(chord_scale_intervall[i + 1][0], chord[0]) == "5" and not self.stufen_ident([chord_scale_intervall[i+1]], root)[0] in ["i", "I"]:
+                        result.append("V/"+self.stufen_ident([chord_scale_intervall[i+1]], root)[0])
+
+                    else:
+                        result.append(maj_dic[self.intervall_ident(root, chord[0])])
+                else:
+                    result.append(maj_dic[self.intervall_ident(root, chord[0])])
+            if "b3" in chord[1]:
+                if i <= len(chord_scale_intervall) - 3:
+                    if self.intervall_ident(chord_scale_intervall[i + 2][0], chord[0]) == "2" and self.intervall_ident(chord_scale_intervall[i + 2][0], chord_scale_intervall[i + 1][0]) == "5" and "3" in chord_scale_intervall[i + 1][1] and not self.stufen_ident([chord_scale_intervall[i + 2]], root)[0] in ["i", "I"]:
+                        result.append("ii/" + self.stufen_ident([chord_scale_intervall[i + 2]], root)[0])
+                    else:
+                        result.append(min_dic[self.intervall_ident(root, chord[0])])
+                else:
+                    result.append(min_dic[self.intervall_ident(root, chord[0])])
         return result
 
     def stufen_gen(self, root, stufe):
@@ -470,12 +488,34 @@ class theM:
         min_dic = {'i': '1', 'bii': 'b2', 'ii': '2', 'biii': 'b3', 'iii': '3', 'iv': '4', '#iv': '#4', 'bv': 'b5', 'v': '5', 'bvi': 'b6', 'vi': '6', 'bvii': 'b7', 'vii': '7'}
         maj_dic = {'I': '1', 'bII': 'b2', 'II': '2', 'bIII': 'b3', 'III': '3', 'IV': '4', '#IV': '#4', 'bV': 'b5', 'V': '5', 'bVI': 'b6', 'VI': '6', 'bVII': 'b7', 'VII': '7'}
 
+        add = []
+        for i in ["b5", "6", "b6", "M7", "7", "b9", "9"]:
+            if "b" + i in stufe:
+                stufe = stufe.split("b" + i)
+                stufe = "".join(stufe)
+
+            elif i in stufe:
+                stufe = stufe.split(i)
+                stufe = "".join(stufe)
+                if i == "7":
+                    i = "b7"
+                if i == "M7":
+                    i = "7"
+                #if i == "9":
+                #    add.append("b7")
+                #if i == "b9":
+                #    add.append("b7")
+                add.append(i)
         try:
             interv = min_dic[stufe]
-            return [self.intervall_gen(root, interv), ["b3", "5"]]
-        except KeyError:
+            quality = ["b3", "5"]
+            quality.extend(add)
+            return [self.intervall_gen(root, interv), quality]
+        except:
             interv = maj_dic[stufe]
-            return [self.intervall_gen(root, interv), ["3", "5"]]
+            quality = ["3", "5"]
+            quality.extend(add)
+            return [self.intervall_gen(root, interv), quality]
 
     def rand_prog(self, root, length):
         """
@@ -493,6 +533,20 @@ class theM:
         for _ in range(length):
             result.append(self.stufen_gen(root, random.choice(choice)))
         return result
+
+    def rand_prog_programms(self):
+        root = random.choice(["A", "B", "C", "D", "E", "F", "G"]) + random.choice(["", "", "", "", "b", "#"])
+
+        rand = self.rand_prog(root, 5)
+        rand.insert(0, self.stufen_gen(root, random.choice(["i", "I"])))
+        rand.append(self.stufen_gen(root, random.choice(["i", "I"])))
+        self.add_251(rand, -3)
+        self.add_2nd_d(rand, 2)
+        self.add_251(rand, -1)
+        self.add_chord_quality(rand, random.choice(range(len(rand))), "9")
+        stufen = self.stufen_ident(rand, root)
+        chords = self.chord_scale(rand)
+        return stufen, chords
 
 
 
