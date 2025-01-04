@@ -384,7 +384,11 @@ class theM:
         if index < 0:
             index = len(chord_scale_intervall) + index
         chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index][0], "5"), ["3", "5", "b7"]])
-        chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index+1][0], "2"), ["b3", "5", "b7"]])
+        if "3" in chord_scale_intervall[index+1][1]:
+            quality = ["b3", "5", "b7"]
+        if "b3" in chord_scale_intervall[index+1][1]:
+            quality = ["b3", "b5", "b7"]
+        chord_scale_intervall.insert(index, [self.intervall_gen(chord_scale_intervall[index+1][0], "2"), quality])
         return chord_scale_intervall
 
     def find_index(self, chord_scale_intervall, note):
